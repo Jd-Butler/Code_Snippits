@@ -1,0 +1,30 @@
+################################
+#With just let
+#Replace Table1 with the desired range
+#Issues: Excel handles nulls as 0.
+
+=LET(myarr,Table1,rowcount,ROWS(myarr),columnCount,COLUMNS(myarr),INDEX(myarr,(MOD(SEQUENCE(columnCount*rowcount)-1,rowcount)+1),QUOTIENT(SEQUENCE(columnCount*rowcount)-1,rowcount)+1))
+
+################################
+
+################################
+#Lambda Let
+#Enter Lambda and select the desired array to stack.
+#Issues: Excel handles nulls as 0.
+
+=LAMBDA(myarr,LET(rowcount,ROWS(myarr),columnCount,COLUMNS(myarr),INDEX(myarr,(MOD(SEQUENCE(columnCount*rowcount)-1,rowcount)+1),QUOTIENT(SEQUENCE(columnCount*rowcount)-1,rowcount)+1)))
+################################
+
+################################
+#With Filter XML
+
+=IFERROR(FILTERXML((("<a><b>"&TEXTJOIN("</b><b>",TRUE,Table2))&"</b></a>"),"//b"),"")
+################################
+
+################################
+#Filter XML and Lamda
+#Enter Lambda. Two arguments Arr and Bool. Arr takes the array you want to stack, bool is true or false to keep or ignore blanks
+
+=LAMBDA(arr,bool,IFERROR(FILTERXML((("<a><b>"&TEXTJOIN("</b><b>",bool,arr))&"</b></a>"),"//b"),""))(Table2,FALSE)
+
+################################

@@ -1,0 +1,6 @@
+=CONCAT(IFERROR(MID(A2,ROW($A$1:$A$1000),1)*1,""))
+
+'' office 365 version with Dynamic Arrays
+=CONCAT(IFERROR(MID(A1,SEQUENCE(1000),1)*1,""))
+
+=MAX(IFERROR(VALUE(RIGHT(A1,SEQUENCE(LEN(A1)))),0))

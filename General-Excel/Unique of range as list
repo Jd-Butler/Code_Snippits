@@ -1,0 +1,1 @@
+=UNIQUE(FILTERXML("<a><b>"&SUBSTITUTE(TEXTJOIN(",",TRUE,TRANSPOSE(Table4[[Column1]:[Column4]])),",","</b><b>")&"</b></a>","//b"))
