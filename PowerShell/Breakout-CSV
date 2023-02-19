@@ -1,0 +1,39 @@
+#Change C:\ directory of file. Change readcount to number of lines per file.
+
+$i=0; Get-Content C:\Users\name\Desktop\Kaggle\netflix_titlesskip1.csv -ReadCount 1000 | %{$i++; $_ | Out-File C:\Users\name\Desktop\Kaggle\netflix_titleOutputSkip1_$i.csv}    
+###############
+#Creates new csv without first line.
+Get-Content C:\Users\name\Desktop\Kaggle\netflix_titles.csv | select-object -skip 1 | Out-File netflix_titlesskip1.csv    
+
+##############
+###
+param(
+[parameter(Mandatory=$true)] [string] $FilePath,
+[parameter(Mandatory=$true)] [string] $NewBaseFileName,
+[parameter(Mandatory=$true)] [int] $BatchSize,
+[parameter(Mandatory=$true)] [string] $DeleteOldBaseFiles,
+[parameter(Mandatory=$true)] [string] $KeepHeader)
+
+
+$dirPath = [io.path]::GetDirectoryName($FilePath)
+$myData = get-content $FilePath
+$mainFolderFiles = Get-ChildItem $dirPath
+$ii = 0
+
+if ($DeleteOldBaseFiles -like "Yes"){
+    Foreach($file in $mainFolderFiles) {
+    if($file.Name -like "$NewBaseFileName*"){
+        if($file.fullname -notlike $FilePath){
+            write-host $file.FullName "removed"
+            remove-item $file.fullname}}}}
+
+for ($i=1; $i -lt $myData.Length; $i += $BatchSize){
+    $ii++
+    if ($KeepHeader -eq "Yes") {
+        Write-Output $mydata[0] $myData[$i..($i + $Batchsize -1)] | Out-file $dirpath\$NewBaseFileName$ii.csv}
+        #Write-host  $i ($i + $Batchsize -1)] }
+    else {
+        Write-Output $myData[$i..($i + $Batchsize -1)] | Out-file $dirpath\$NewBaseFileName$ii.csv}
+        #Write-host  $i ($i + $Batchsize -1)] }
+    }
+###
