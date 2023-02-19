@@ -1,0 +1,1 @@
+ #"Previous Step" & List.Accumulate({1..50},#table({},{}),(state,current)=>state & Table.FromColumns({{null}},{Table.ColumnNames(#"Previous Step"){0}}))
