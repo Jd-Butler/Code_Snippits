@@ -1,0 +1,13 @@
+#####################################
+#Once Navigating to the folder within Power Shell change 'File*' to the file name of the files to stack.
+#all.csv should be replaced with the name of the export file.
+
+import-csv -encoding default (gci File*) |export-csv -encoding default -notypeinformation all.csv
+
+#####################################
+param(
+[parameter(Mandatory=$true)] [string] $FolderPath,
+[parameter(Mandatory=$true)] [string] $OutputName)
+
+import-csv -Encoding Default (gci $FolderPath\*) | export-csv -Encoding Default -NoTypeInformation $FolderPath\$OutputName.csv
+#####################################
