@@ -1,0 +1,7 @@
+Main Path:
+xpath(xml(body('Download_the_exported_report_file')),'/*[local-name() = ''Report'']/*[local-name() = ''Tablix1'']/*[local-name() = ''Details_Collection'']/*[local-name() = ''Details'']')
+
+Individual Items:
+xpath(xml(item()),'string(/*[local-name() = ''Details'']/@Email)')
+
+https://blog.crossjoin.co.uk/2020/05/04/calling-the-power-bi-export-api-from-power-automate-part-3-creating-an-alerting-solution/
