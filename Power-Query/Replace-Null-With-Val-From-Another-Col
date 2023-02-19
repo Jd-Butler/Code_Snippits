@@ -1,0 +1,3 @@
+= Table.ReplaceValue(#"PrevStep", null, each [ColumnToReplaceWith],Replacer.ReplaceValue,{"ColumnToReplaceIn"})
+This can support multiple replace in columns
+= Table.ReplaceValue(#"PrevStep", null, each [StartDate],Replacer.ReplaceValue,{"ColumnToReplaceIn 1", "ColumnToReplaceIn 2"})
