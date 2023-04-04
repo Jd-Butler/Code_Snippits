@@ -9,7 +9,7 @@ with open("path/to/your/json/file.json", "r") as f:
 data = json.loads(json_data)
 
 # Extract the "name", "attributes", and "dataType" sections for all entities
-entities_data = [{"entity_name": entity["name"], "attributes": entity["attributes"]} for entity in data["entities"]]
+entities_data = [{"entity_name": entity.get("name", ""), "attributes": entity.get("attributes", [])} for entity in data["entities"]]
 attribute_data = [{"entity_name": entity["entity_name"], "attribute_name": attr.get("name", ""), "dataType": attr.get("dataType", "")} for entity in entities_data for attr in entity["attributes"]]
 
 # Create a pandas DataFrame with three columns
