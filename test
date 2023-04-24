@@ -1,16 +1,35 @@
 import pandas as pd
-from azure.synapse.core import SparkSession
+from pyspark.sql import SparkSession
+from azure.synapse.core import SynapseConnection, SqlDatabase, SqlUser, SqlPassword, LinkedServiceResource
+
+# Create a Synapse connection
+synapse_conn = SynapseConnection.get(workspace_name='{your_workspace_name}',
+                                      app_name='{your_app_name}',
+                                      access_token='{your_access_token}')
+
+# Define the name of your Oracle linked service
+linked_service_name = '{your_linked_service_name}'
+
+# Define the properties of your linked service
+linked_service = LinkedServiceResource(properties={
+        'type': 'AzureSynapseAnalytics',
+        'typeProperties': {
+            'domain': 'AzureSqlDatabase',
+            'connectionString': f'SERVER={your_server_name}.database.windows.net;DATABASE={your_database_name};UID={your_username};PWD={your_password}'
+        }
+    })
+
+# Create or update your linked service
+synapse_conn.linked_services.create_or_update(linked_service_name, linked_service)
 
 # Create a Spark session
-spark = SparkSession(sc)
+spark = SparkSession.builder.appName("Oracle Query").getOrCreate()
 
-# Create a connection to the Oracle linked service
+# Read data from your Oracle table using your linked service
 oracle_df = spark.read.format('jdbc') \
-    .option('url', 'jdbc:oracle:thin:@//{your_oracle_server_name}:{your_oracle_port}/{your_oracle_database_name}') \
-    .option('user', '{your_oracle_username}') \
-    .option('password', '{your_oracle_password}') \
+    .option('url', f'jdbc:synapse://{linked_service_name}') \
     .option('query', 'SELECT * FROM {your_table_name}') \
     .load()
 
-# Display the data from the Oracle table
+# Display the data from your Oracle table
 oracle_df.show()
