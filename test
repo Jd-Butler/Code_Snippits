@@ -1,0 +1,16 @@
+import pandas as pd
+from azure.synapse.core import SparkSession
+
+# Create a Spark session
+spark = SparkSession(sc)
+
+# Create a connection to the Oracle linked service
+oracle_df = spark.read.format('jdbc') \
+    .option('url', 'jdbc:oracle:thin:@//{your_oracle_server_name}:{your_oracle_port}/{your_oracle_database_name}') \
+    .option('user', '{your_oracle_username}') \
+    .option('password', '{your_oracle_password}') \
+    .option('query', 'SELECT * FROM {your_table_name}') \
+    .load()
+
+# Display the data from the Oracle table
+oracle_df.show()
