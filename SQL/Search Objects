@@ -1,0 +1,1 @@
+selet * from all_objects where object_name = ''
