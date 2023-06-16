@@ -1,0 +1,17 @@
+import random
+
+def spongebob_mocking(text):
+    result = ''
+    for char in text:
+        if char.isalpha():
+            if random.choice([True, False]):
+                result += char.upper()
+            else:
+                result += char.lower()
+        else:
+            result += char
+    return result
+
+input_text = input("Enter the text: ")
+mocked_text = spongebob_mocking(input_text)
+print("Mocked text:", mocked_text)
