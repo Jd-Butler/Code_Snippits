@@ -5,4 +5,11 @@
      Replacer.ReplaceValue,{"Income"}
  )
 
+or 
+
+= Table.TransformColumns( 
+     #"Remove nulls", 
+     {"Income", each if _ > 50000 then 50000 else _ }
+)
+
 https://gorilla.bi/power-query/replace-values/#conditionally-replace-values
