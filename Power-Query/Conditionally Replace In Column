@@ -1,0 +1,8 @@
+= Table.ReplaceValue(
+     #"Changed Type", 
+     each [Income], 
+     each if [Income] > 50000 then 50000 else [Income] ,
+     Replacer.ReplaceValue,{"Income"}
+ )
+
+https://gorilla.bi/power-query/replace-values/#conditionally-replace-values
