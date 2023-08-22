@@ -13,3 +13,20 @@ or
 )
 
 https://gorilla.bi/power-query/replace-values/#conditionally-replace-values
+
+
+multiple conditions:
+
+let
+    Source = YourPreviousStepName,
+    UpdatedColumnC = Table.ReplaceValue(
+        Source, 
+        each [C], 
+        each 
+            if [A] = "val1" and [B] = "valA" then "return1"
+            else if [A] = "val1" and [B] = "valB" then "return2"
+            else [C],
+        Replacer.ReplaceValue,{"C"}
+    )
+in
+    UpdatedColumnC
