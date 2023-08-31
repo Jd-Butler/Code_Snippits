@@ -1,35 +1,16 @@
-import pandas as pd
-from pyspark.sql import SparkSession
-from azure.synapse.core import SynapseConnection, SqlDatabase, SqlUser, SqlPassword, LinkedServiceResource
-
-# Create a Synapse connection
-synapse_conn = SynapseConnection.get(workspace_name='{your_workspace_name}',
-                                      app_name='{your_app_name}',
-                                      access_token='{your_access_token}')
-
-# Define the name of your Oracle linked service
-linked_service_name = '{your_linked_service_name}'
-
-# Define the properties of your linked service
-linked_service = LinkedServiceResource(properties={
-        'type': 'AzureSynapseAnalytics',
-        'typeProperties': {
-            'domain': 'AzureSqlDatabase',
-            'connectionString': f'SERVER={your_server_name}.database.windows.net;DATABASE={your_database_name};UID={your_username};PWD={your_password}'
-        }
-    })
-
-# Create or update your linked service
-synapse_conn.linked_services.create_or_update(linked_service_name, linked_service)
-
-# Create a Spark session
-spark = SparkSession.builder.appName("Oracle Query").getOrCreate()
-
-# Read data from your Oracle table using your linked service
-oracle_df = spark.read.format('jdbc') \
-    .option('url', f'jdbc:synapse://{linked_service_name}') \
-    .option('query', 'SELECT * FROM {your_table_name}') \
-    .load()
-
-# Display the data from your Oracle table
-oracle_df.show()
+let
+    SplitAndRenameColumns = (input as text) as record =>
+        let
+            datePart = Text.Start(input, 10),
+            isDate = try Date.From(DateTime.FromText(datePart)) otherwise null,
+            splitPositions =
+                if isDate <> null then {0, 1, 5, 6, 120}
+                else {6, 120},
+            splitResult = Text.SplitTextByPositions(input, splitPositions),
+            columnNames =
+                if isDate <> null then {"Date", "Field1", "Field2", "Field3", "Field4"}
+                else {"Field1", "Field2"}
+        in
+            Record.FromList(splitResult, columnNames)
+in
+    SplitAndRenameColumns
