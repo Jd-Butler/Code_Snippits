@@ -1,31 +1,24 @@
 let
-    CustomSplit = (sourceTable as table, sourceColumn as text) =>
-    let
-        // Function to determine if the first 10 characters are a date
-        IsDateInFirstTen = (text) => try Date.From(Text.Start(text, 10)) otherwise null,
+    Source = Table.FromRecords({
+        [YourColumn = "2023-08-31This is some text that goes on for a while"],
+        [YourColumn = "NotADateThis is some text that also goes on for a while"]
+    }),
 
-        // Function to perform the split based on the first 10 characters being a date or not
-        SplitFunction = (row) => 
-            let
-                val = row[sourceColumn],
-                isDate = IsDateInFirstTen(val),
-                splitResult = if isDate = null then
-                    Table.FromList(Splitter.SplitTextByPositions({0, 50, 120})(val), Splitter.SplitByNothing(), null, null, ExtraValues.Error)
-                else
-                    Table.FromList(Splitter.SplitTextByPositions({0, 12, 156, 190})(val), Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-                renamedResult = if isDate = null then
-                    Table.RenameColumns(splitResult, {{"Column1", "A"}, {"Column2", "C"}})
-                else
-                    Table.RenameColumns(splitResult, {{"Column1", "A"}, {"Column2", "B"}, {"Column3", "C"}})
-            in
-                renamedResult,
+    // Add a new column to check if the first 10 characters form a date
+    WithDateCheck = Table.AddColumn(Source, "IsDate", each try Date.From(Text.Start([YourColumn], 10)) otherwise null),
 
-        // Apply the split function to each row and create new columns
-        WithSplits = Table.TransformColumns(sourceTable, {{sourceColumn, each SplitFunction(_), type table}}),
+    // Add another new column to store the split values
+    WithSplits = Table.AddColumn(WithDateCheck, "SplitValues", each 
+        if [IsDate] = null then
+            Table.FromList(Splitter.SplitTextByPositions({0, 50, 120})([YourColumn]), Splitter.SplitByNothing(), {"C"}, null, ExtraValues.Error)
+        else
+            Table.FromList(Splitter.SplitTextByPositions({0, 12, 156, 190})([YourColumn]), Splitter.SplitByNothing(), {"A", "B", "C"}, null, ExtraValues.Error)
+    ),
 
-        // Expand the table into new columns
-        ExpandedSplits = Table.ExpandTableColumn(WithSplits, sourceColumn, {"A", "B", "C"}, {"A", "B", "C"})
-    in
-        ExpandedSplits
+    // Expand the new column into multiple columns
+    ExpandedSplits = Table.ExpandTableColumn(WithSplits, "SplitValues", {"A", "B", "C"}, {"A", "B", "C"}),
+
+    // Optional: Remove the IsDate and original columns
+    FinalTable = Table.RemoveColumns(ExpandedSplits, {"IsDate", "YourColumn"})
 in
-    CustomSplit
+    FinalTable
