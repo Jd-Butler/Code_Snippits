@@ -1,1 +1,16 @@
-
+let
+    Source = YourTableHere,
+    SortedTable = Table.Sort(Source,{{"Role", Order.Ascending}, {"Item Number", Order.Ascending}}),
+    GroupedRows = Table.Group(SortedTable, {"Role"}, {{"Data", each _, type table [Role=Text, "Item Number"=number, Amount=number]}}),
+    CustomColumn = Table.AddColumn(GroupedRows, "SelectedItems", each 
+        if [Role] = "vah" then [Data] 
+        else 
+        let
+            CountRows = Table.RowCount([Data]),
+            SelectRows = Number.RoundDown(CountRows * 0.25),
+            Selected = Table.FirstN([Data], SelectRows)
+        in
+            Selected),
+    ExpandSelectedItems = Table.ExpandTableColumn(CustomColumn, "SelectedItems", {"Role", "Item Number", "Amount"})
+in
+    ExpandSelectedItems
