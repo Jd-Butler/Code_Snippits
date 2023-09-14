@@ -1,0 +1,9 @@
+Get a percent of a grouped column depending on a columns value
+    CustomColumn = Table.AddColumn(GroupedRows, "SelectedItems", each 
+        if List.Contains({values to contain}, [column name]) then
+        let
+            CountRows = Table.RowCount([Data]),
+            SelectRows = Number.RoundDown(CountRows * 0.25),
+            Selected = Table.FirstN([Data], SelectRows)
+        in
+            Selected) else [Data]
