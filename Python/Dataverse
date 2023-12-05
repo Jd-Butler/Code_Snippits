@@ -1,0 +1,31 @@
+import requests
+
+# Azure AD app credentials
+client_id = 'YOUR_CLIENT_ID'
+client_secret = 'YOUR_CLIENT_SECRET'
+tenant_id = 'YOUR_TENANT_ID'
+
+# Endpoint information
+token_url = f'https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token'
+resource = 'https://<your-dynamics-365-url>'  # Replace with your Dynamics 365 URL
+
+# Payload to get the token
+payload = {
+    'grant_type': 'client_credentials',
+    'client_id': client_id,
+    'client_secret': client_secret,
+    'resource': resource  # Specifying the resource (Dataverse/Dynamics 365 URL)
+}
+
+# Headers
+headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+
+# POST request to get the token
+response = requests.post(token_url, headers=headers, data=payload)
+
+# Extracting the token
+access_token = response.json().get('access_token')
+
+print(access_token)
