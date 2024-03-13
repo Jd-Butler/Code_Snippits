@@ -1,1 +1,44 @@
 
+Sub InsertImageFromClipboardAsCommentBackground()
+    Dim commentPic As Comment
+    Dim tempFilePath As String
+    
+    ' Get the image from the clipboard
+    If ClipboardFormats(2) Then ' Check if an image is in the clipboard
+        ' Save the image to a temporary file
+        tempFilePath = Environ("TEMP") & "\clipboard_image.png"
+        SaveClipboardImageToFile tempFilePath
+        
+        ' Check if a comment exists for the selected cell
+        If Not ActiveCell.Comment Is Nothing Then
+            Set commentPic = ActiveCell.Comment
+        Else
+            Set commentPic = ActiveCell.AddComment
+        End If
+        
+        ' Set the comment background as the image from the temporary file
+        With commentPic.Shape
+            .Fill.UserPicture (tempFilePath)
+        End With
+        
+        ' Clean up the temporary file
+        Kill tempFilePath
+    Else
+        MsgBox "No image found in the clipboard.", vbExclamation
+    End If
+End Sub
+
+Sub SaveClipboardImageToFile(filePath As String)
+    Dim objFileSystem As Object
+    Dim objData As MSForms.DataObject
+    
+    Set objData = New MSForms.DataObject
+    objData.GetFromClipboard
+    If objData.GetFormat(1) = 2 Then ' Check if clipboard contains image data
+        Set objFileSystem = CreateObject("Scripting.FileSystemObject")
+        With objFileSystem.CreateTextFile(filePath, True)
+            .Write objData.GetData(1)
+            .Close
+        End With
+    End If
+End Sub
