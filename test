@@ -2,9 +2,9 @@ Sub InsertImageFromClipboardAsCommentBackground()
     Dim commentPic As Comment
     Dim tempFilePath As String
     
-    ' Attempt to get the image from the clipboard
+    ' Attempt to save the image from the clipboard as JPEG
     On Error Resume Next
-    SaveClipboardImageToFile tempFilePath
+    SaveClipboardImageToFile tempFilePath, "image/jpeg"
     On Error GoTo 0
     
     If tempFilePath <> "" Then ' Check if an image was successfully saved
@@ -23,23 +23,26 @@ Sub InsertImageFromClipboardAsCommentBackground()
         ' Clean up the temporary file
         Kill tempFilePath
     Else
-        MsgBox "No image found in the clipboard.", vbExclamation
+        MsgBox "No JPEG image found in the clipboard.", vbExclamation
     End If
 End Sub
 
-Sub SaveClipboardImageToFile(ByRef filePath As String)
-    Dim objImage As Object
+Sub SaveClipboardImageToFile(ByRef filePath As String, ByVal format As String)
+    Dim objData As MSForms.DataObject
     Dim objFileSystem As Object
     
-    On Error Resume Next
-    ' Attempt to retrieve image from clipboard as bitmap
-    Set objImage = GetObject("clipboard:", "Bitmap")
-    On Error GoTo 0
+    ' Attempt to retrieve image from clipboard as data object
+    Set objData = New MSForms.DataObject
+    objData.GetFromClipboard
     
-    If Not objImage Is Nothing Then
+    ' Check if the clipboard contains data and if it is of the specified format
+    If objData.GetFormat(format) Then
         ' Save the image to file
-        filePath = Environ("TEMP") & "\clipboard_image.png"
+        filePath = Environ("TEMP") & "\clipboard_image.jpeg"
         Set objFileSystem = CreateObject("Scripting.FileSystemObject")
-        objImage.SaveAs filePath
+        With objFileSystem.CreateTextFile(filePath, True)
+            .Write objData.GetData(format)
+            .Close
+        End With
     End If
 End Sub
