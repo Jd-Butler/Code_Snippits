@@ -1,0 +1,92 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import matplotlib.lines as lines
+
+def read_excel(file_path):
+    # Read the Excel file
+    df = pd.read_excel(file_path)
+    return df
+
+def draw_entity(ax, name, x, y):
+    # Draw entity box with 1.5x increased size
+    width, height = 3.0, 2.25  # Increased size by 1.5x
+    entity = patches.FancyBboxPatch(
+        (x - width/2, y - height/2), width, height,
+        boxstyle="round,pad=0.3", edgecolor='black', facecolor='lightgray',
+        zorder=3  # Draw entities above lines
+    )
+    ax.add_patch(entity)
+    ax.text(x, y, name, ha='center', va='center', fontsize=12, weight='bold', zorder=4)  # Same text size
+
+def draw_relationship(ax, name, x, y):
+    # Draw relationship diamond with 1.5x increased size
+    size = 1.2  # Increased size by 1.5x
+    diamond = patches.Polygon(
+        [(x, y + size), (x + size, y), (x, y - size), (x - size, y)],
+        closed=True, edgecolor='black', facecolor='lightblue',
+        zorder=2  # Draw relationships above lines but below entities
+    )
+    ax.add_patch(diamond)
+    ax.text(x, y, name, ha='center', va='center', fontsize=12, weight='bold', zorder=3)  # Same text size
+
+def draw_line(ax, start, end):
+    # Draw line between entities/relationships
+    line = lines.Line2D([start[0], end[0]], [start[1], end[1]], color='black', zorder=1)
+    ax.add_line(line)
+
+def create_er_diagram(df):
+    # Create a figure and axes
+    fig, ax = plt.subplots(figsize=(20, 16))  # Increased figure size
+    ax.set_xlim(0, 35)
+    ax.set_ylim(0, 25)
+    ax.set_aspect('equal')
+    ax.axis('off')
+
+    # Generate positions
+    entity_positions = {}
+    relationship_positions = {}
+    position_x = 4
+    position_y = 22
+    used_positions = set()
+
+    def get_next_position():
+        nonlocal position_x, position_y
+        while (position_x, position_y) in used_positions:
+            position_x += 10  # Increased spacing to accommodate larger shapes
+            if position_x > 33:
+                position_x = 4
+                position_y -= 8  # Increased vertical spacing
+        used_positions.add((position_x, position_y))
+        return position_x, position_y
+
+    for index, row in df.iterrows():
+        table1 = row['Table_1']
+        table2 = row['Table_2']
+        relationship = row['Relationship_Column']
+        
+        if table1 not in entity_positions:
+            entity_positions[table1] = get_next_position()
+        if table2 not in entity_positions:
+            entity_positions[table2] = get_next_position()
+        
+        relationship_positions[relationship] = ( 
+            (entity_positions[table1][0] + entity_positions[table2][0]) / 2, 
+            (entity_positions[table1][1] + entity_positions[table2][1]) / 2 
+        )
+        
+        # Draw lines and relationships
+        draw_line(ax, entity_positions[table1], relationship_positions[relationship])
+        draw_line(ax, entity_positions[table2], relationship_positions[relationship])
+        draw_relationship(ax, relationship, *relationship_positions[relationship])
+
+    # Draw entities
+    for name, pos in entity_positions.items():
+        draw_entity(ax, name, *pos)
+
+    plt.show()
+
+# Path to your Excel file
+file_path = "test"
+df = read_excel(file_path)
+create_er_diagram(df)
