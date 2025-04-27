@@ -1,0 +1,36 @@
+# Designed to get combinations available for adjustable kettlebell weights.
+
+from itertools import combinations
+import pandas as pd
+
+# Initial setup
+weights = sorted([3, 2, 2, 1, 0.5, 4, 4, 3, 2])
+base_weight = 12
+kg_to_lb = 2.20462262185
+
+# Get all unique combos
+def get_unique_combinations(weights):
+    seen = {}
+    for r in range(0, len(weights) + 1):  
+        for combo in combinations(weights, r):
+            total = sum(combo)
+            if total not in seen or len(combo) < len(seen[total]):
+                seen[total] = combo
+    return seen
+
+# Get combos
+combo_dict = get_unique_combinations(weights)
+
+# Create DataFrame
+weight_df = pd.DataFrame([
+    {
+        'kgs': total + base_weight,
+        'lbs': round((total + base_weight) * kg_to_lb, 1),
+        'Configuration': ', '.join(map(str, combo)) if combo else 'none'
+    }
+    for total, combo in combo_dict.items()
+])
+
+# Sort and reset index
+weight_df = weight_df.sort_values('kgs').reset_index(drop=True)
+print(weight_df)
